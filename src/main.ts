@@ -1,45 +1,112 @@
-import p5 from "p5";
+import p5 from "p5"
 
 const sketch = (p: p5) => {
-  let ratio = p.sqrt(2);
+  let ratio = (1 + p.sqrt(5)) / 2
+  let thr = 80
+  let thr2 = 0.5
 
   p.setup = () => {
-    p.createCanvas(500, 353);
+    p.createCanvas(500, 500);
     p.colorMode(p.HSB, 1);
-  };
+    colorRect(0, 0, p.width, p.width)
+    divSquare(0, 0, p.width)
+  }
 
-  p.draw = () => {
-    p.background(0, 0, 1);
-    let scalar = p.pow(50, (p.mouseX * 1.0) / p.width) * p.width;
-    divRect(p.width - scalar, p.height - scalar / ratio, scalar);
-  };
+  function colorRect(xPos: number, yPos: number, wd: number, ht: number) {
+    let col
+    let val = p.random(1)
+    
+    if (val < 0.15) {
+      col = p.color(0, 1, 1)
+    } else if (val < 0.3) {
+      col = p.color(2.0 / 3, 1, 1)
+    } else if (val < 0.45) {
+      col = p.color(1.0 / 6, 1, 1)
+    } else if (val < 0.5) {
+      col = p.color(0, 1, 0)
+    } else if (val < 0.7) {
+      col = p.color(0, 0, 0.9)
+    } else {
+      col = p.color(0, 0, 1)
+    }
 
+    p.fill(col)
+    p.strokeWeight(5)
+    p.rect(xPos, yPos, wd, ht)
+  }
 
-  function divRect(xPos: number, yPos: number, wd: number) {
-    let itr = 0;
-    let xEndPos = xPos + wd;
-    let yEndPos = yPos + wd / ratio;
+  function divRect(xPos: number, yPos: number, wd: number): void {
+    let itr = 0
+    let xEndPos = wd + xPos
+    let yEndPos = wd / ratio + yPos
+    
+    // p.fill(p.color(p.random(1), 1, 1))
+    // p.rect(xPos, yPos, wd ,wd)
 
-    while (wd > 0.1) {
-      itr++;
-      p.fill(p.color((itr * ratio) % 1, 1, 1));
+    while (wd > thr) {
+      itr++
       if (itr % 2 === 0) {
         while (xPos + wd < xEndPos + 0.1) {
-          p.rect(xPos, yPos, wd, wd);
-          xPos += wd;
+          colorRect(xPos, yPos, wd, wd)
+          if (p.random(1) < thr2) {
+            divSquare(xPos, yPos, wd)
+          }
+          xPos += wd
         }
-        wd = xEndPos - xPos;
+        wd = xEndPos - xPos
       } else {
         while (yPos + wd < yEndPos + 0.1) {
-          p.rect(xPos, yPos, wd, wd);
-          yPos += wd;
+          colorRect(xPos, yPos, wd, wd)
+          if (p.random(1) < thr2) {
+            divSquare(xPos, yPos, wd)
+          }
+          yPos += wd
         }
-        wd = yEndPos - yPos;
+        wd = yEndPos - yPos
       }
     }
   }
 
-  p.mouseClicked = () => {};
-};
+  function divSquare(xPos: number, yPos: number, wd: number) {
+    let itr = 0
+    let xEndPos = xPos + wd
+    let yEndPos = yPos + wd
 
-new p5(sketch);
+    // p.fill(p.color(p.random(1), 1, 1))
+    // p.rect(xPos, yPos, wd, wd / ratio)
+
+    while (wd > thr) {
+      itr++
+      if (itr % 2 === 1) {
+        while (xPos + wd * ratio < xEndPos + 0.1) {
+          colorRect(xPos, yPos, wd * ratio, wd)
+          if (p.random(1) < thr2) {
+            divRect(xPos, yPos, wd * ratio)
+          }
+          xPos += wd * ratio
+        }
+        wd = xEndPos - xPos
+      } else {
+        while (yPos + wd / ratio < yEndPos + 0.1) {
+          colorRect(xPos, yPos, wd, wd / ratio)
+          if (p.random(1) < thr2) {
+            divRect(xPos, yPos, wd)
+          }
+          yPos += wd / ratio
+        }
+        wd = yEndPos - yPos
+      }
+    }
+  }
+
+  p.mouseClicked = () => {
+    thr = p.random(10, 300)
+    thr2 = p.random(0, 1)
+    console.log("thr = ", thr, ", thr2 = ", thr2)
+    colorRect(0, 0, p.width, p.width)
+    divSquare(0, 0, p.width)
+  }
+
+}
+
+new p5(sketch)
